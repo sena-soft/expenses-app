@@ -5,6 +5,7 @@ import Input from './Input';
 import Button from '../UI/Button';
 import { GlobalStyles } from '../../constants/style';
 import { getDateFormatted } from '../../util/date';
+import DatePicker from './DatePicker';
 
 function ExpenseForm({ submitButtonLabel, onCancel, onSubmit, defaultValues }) {
   const [inputs, setInputs] = useState({
@@ -13,7 +14,7 @@ function ExpenseForm({ submitButtonLabel, onCancel, onSubmit, defaultValues }) {
       isValid: true,
     },
     date: {
-      value: defaultValues ? getDateFormatted(defaultValues.date) : '',
+      value: defaultValues ? defaultValues.date : new Date(),
       isValid: true,
     },
     description: {
@@ -22,13 +23,29 @@ function ExpenseForm({ submitButtonLabel, onCancel, onSubmit, defaultValues }) {
     },
   });
 
+  const [showCalendar, setShowCalendar] = useState(false);
+
+
+  function handleCalendar() {
+    setShowCalendar(true)
+  }
+
   function inputChangedHandler(inputIdentifier, enteredValue) {
+    console.log(inputIdentifier, enteredValue);
     setInputs((curInputs) => {
       return {
         ...curInputs,
         [inputIdentifier]: { value: enteredValue, isValid: true },
       };
     });
+  }
+
+  function handleDateChanged(event, selectedDate) {
+    console.log(selectedDate);
+    inputChangedHandler('date', selectedDate),
+      console.log(inputs);
+    setShowCalendar(false);
+
   }
 
   function submitHandler() {
@@ -68,6 +85,7 @@ function ExpenseForm({ submitButtonLabel, onCancel, onSubmit, defaultValues }) {
   return (
     <View style={styles.form}>
       <Text style={styles.title}>Gasto</Text>
+
       <View style={styles.inputsRow}>
         <Input
           style={styles.rowInput}
@@ -79,16 +97,11 @@ function ExpenseForm({ submitButtonLabel, onCancel, onSubmit, defaultValues }) {
             value: inputs.amount.value,
           }}
         />
-        <Input
-          style={styles.rowInput}
-          label="Fecha"
-          invalid={!inputs.date.isValid}
-          textInputConfig={{
-            placeholder: 'YYYY-MM-DD',
-            maxLength: 10,
-            onChangeText: inputChangedHandler.bind(this, 'date'),
-            value: inputs.date.value,
-          }}
+        <DatePicker 
+          inputs={inputs}
+          showCalendar={showCalendar}
+          handleCalendar={handleCalendar}
+          handleDateChanged={handleDateChanged}
         />
       </View>
       <Input

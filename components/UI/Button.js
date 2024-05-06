@@ -6,8 +6,8 @@ function Button({children, onPress, mode, style}) {
   return (
     <View style={style}>
         <Pressable onPress={onPress} style={({pressed}) => pressed && styles.pressed}>
-            <View style={[styles.button, mode === 'flat' && styles.flat]}>
-                <Text style={[styles.buttonText, mode === 'flat' && styles.flatText]}>{children}</Text>
+            <View style={[styles.button, mode === 'flat' && styles.flat, mode === 'picker' && styles.picker]}>
+                <Text style={[styles.buttonText, mode === 'flat' && styles.flatText, mode === 'picker' && styles.pickerText]}>{children}</Text>
             </View>
         </Pressable>
     </View>
@@ -26,12 +26,21 @@ const styles = StyleSheet.create({
     flat: {
         backgroundColor: 'transparent'
     },
+    picker: {
+        backgroundColor: GlobalStyles.colors.primary100,
+        borderRadius: 6,
+        
+    },
     buttonText: {
         color: 'white',
         textAlign: 'center'
     },
     flatText: {
         color: GlobalStyles.colors.primary200
+    },
+    pickerText: {
+        color: GlobalStyles.colors.primary800,
+        fontSize: 18
     },
     pressed: {
         opacity: 0.75,

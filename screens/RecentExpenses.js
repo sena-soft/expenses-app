@@ -22,9 +22,9 @@ function RecentExpenses() {
           const expenses = await fetchExpenses(authCtx.token, authCtx.user);
           expensesCtx.setExpenses(expenses);
         } catch (error) {
-          console.log(error.response.data);
           if (error.response?.data?.error === 'Permission denied') {
             Alert.alert('Sesión terminada', 'Es necesario volver a iniciar sesión para continuar.');
+            authCtx.logout();
           }
           setError('No se pudieron recuperar los gastos!');
         }

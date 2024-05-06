@@ -1,5 +1,6 @@
 import { useContext, useLayoutEffect, useState } from "react";
 import { Alert, StyleSheet, Text, View } from "react-native";
+
 import IconButton from "../components/UI/IconButton";
 import { GlobalStyles } from "../constants/style";
 import { ExpensesContext } from "../store/expenses-context";
@@ -9,8 +10,10 @@ import LoadingOverlay from "../components/UI/LoadingOverlay";
 import ErrorOverlay from "../components/UI/ErrorOverlay";
 import { AuthContext } from "../store/auth-context";
 
+
 function ManageExpense({ route, navigation }) {
   const [isSummiting, setIsSummiting] = useState(false);
+  const [date, setDate] = useState('2024-05-05');
   const [error, setError] = useState();
 
   const expensesCtx = useContext(ExpensesContext);
@@ -39,6 +42,7 @@ function ManageExpense({ route, navigation }) {
       setIsSummiting(false);
       if (error.response?.data?.error === 'Permission denied') {
         Alert.alert('Sesión terminada', 'Es necesario volver a iniciar sesión para continuar.');
+        authCtx.logout();
       }
       setError('No se ha podido borrar - Favor de intentelo más tarde')
     }
@@ -63,6 +67,7 @@ function ManageExpense({ route, navigation }) {
       setIsSummiting(false);
       if (error.response?.data?.error === 'Permission denied') {
         Alert.alert('Sesión terminada', 'Es necesario volver a iniciar sesión para continuar.');
+        authCtx.logout();
       }
       setError('No se ha podido guardar el gasto - Favor de intentelo más tarde');
     }     
@@ -86,7 +91,6 @@ function ManageExpense({ route, navigation }) {
         onCancel={cancelHandler}
         defaultValues={selectedExpense}
       />
-      
       {isEditing && (
         <View style={styles.deleteContainer}>
           <IconButton
