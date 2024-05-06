@@ -5,21 +5,28 @@ import { getDateMinusDays } from "../util/date";
 import { fetchExpenses } from "../util/http";
 import LoadingOverlay from "../components/UI/LoadingOverlay";
 import ErrorOverlay from "../components/UI/ErrorOverlay";
+import { AuthContext } from "../store/auth-context";
+import { Alert } from "react-native";
 
 function RecentExpenses() {
 
     const [isFetching, setIsFetching] = useState(true);
     const [error, setError] = useState()
     const expensesCtx = useContext(ExpensesContext);
+    const authCtx = useContext(AuthContext);
 
     useEffect(() => {
       async function getExpenses() {
         setIsFetching(true);
         try {
-          const expenses = await fetchExpenses();
+          const expenses = await fetchExpenses(authCtx.token, authCtx.user);
           expensesCtx.setExpenses(expenses);
         } catch (error) {
-          setError('No se pudieron recuperar los gastos!')
+          console.log(error.response.data);
+          if (error.response?.data?.error === 'Permission denied') {
+            Alert.alert('Sesión terminada', 'Es necesario volver a iniciar sesión para continuar.');
+          }
+          setError('No se pudieron recuperar los gastos!');
         }
         setIsFetching(false);
       }

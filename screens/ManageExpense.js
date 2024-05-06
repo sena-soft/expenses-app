@@ -1,5 +1,5 @@
 import { useContext, useLayoutEffect, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Alert, StyleSheet, Text, View } from "react-native";
 import IconButton from "../components/UI/IconButton";
 import { GlobalStyles } from "../constants/style";
 import { ExpensesContext } from "../store/expenses-context";
@@ -7,12 +7,14 @@ import ExpenseForm from "../components/ManageExpense/ExpenseForm";
 import {deleteExpense, storeExpense, updateExpense } from "../util/http";
 import LoadingOverlay from "../components/UI/LoadingOverlay";
 import ErrorOverlay from "../components/UI/ErrorOverlay";
+import { AuthContext } from "../store/auth-context";
 
 function ManageExpense({ route, navigation }) {
   const [isSummiting, setIsSummiting] = useState(false);
   const [error, setError] = useState();
 
   const expensesCtx = useContext(ExpensesContext);
+  const authCtx = useContext(AuthContext);
 
   const editedExpenseId = route.params?.expenseId;
   const isEditing = !!editedExpenseId;
@@ -30,11 +32,14 @@ function ManageExpense({ route, navigation }) {
   async function deleteExpenseHandler() {
     setIsSummiting(true);
     try {
-      await deleteExpense(editedExpenseId);
+      await deleteExpense(editedExpenseId, authCtx.token, authCtx.user);
       expensesCtx.deleteExpense(editedExpenseId);
       navigation.goBack();
     } catch (error) {
       setIsSummiting(false);
+      if (error.response?.data?.error === 'Permission denied') {
+        Alert.alert('Sesión terminada', 'Es necesario volver a iniciar sesión para continuar.');
+      }
       setError('No se ha podido borrar - Favor de intentelo más tarde')
     }
     
@@ -47,15 +52,18 @@ function ManageExpense({ route, navigation }) {
     setIsSummiting(true);
     try {
       if (isEditing) {
-          const response = await updateExpense(editedExpenseId, expenseData);
+          const response = await updateExpense(editedExpenseId, expenseData, authCtx.token, authCtx.user);
           expensesCtx.updateExpense(editedExpenseId, expenseData);        
       } else {
-          const id = await storeExpense(expenseData)
+          const id = await storeExpense(expenseData, authCtx.token, authCtx.user)
           expensesCtx.addExpense({...expenseData, id: id});
       } 
       navigation.goBack();
     } catch (error) {
       setIsSummiting(false);
+      if (error.response?.data?.error === 'Permission denied') {
+        Alert.alert('Sesión terminada', 'Es necesario volver a iniciar sesión para continuar.');
+      }
       setError('No se ha podido guardar el gasto - Favor de intentelo más tarde');
     }     
   }
